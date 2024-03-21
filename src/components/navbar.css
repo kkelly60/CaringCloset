@@ -1,0 +1,31 @@
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 25px; /* Increased padding thickness */
+  background-color: #b2d8ee;
+  font-family: Arial, sans-serif; /* Change the font family */
+}
+
+
+.left-links a {
+  margin-right: 20px;
+  color: white;
+  text-decoration: none;
+}
+
+.logo-image {
+  width: 150px;
+  height: auto;
+}
+
+.links a {
+  text-decoration: none;
+  color: white;
+  margin-left: 20px;
+}
+
+.links a:last-child {
+  margin-right: 20px;
+}
+

@@ -1,0 +1,102 @@
+/* Resetting default margin and padding for all elements */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background-color: #e5f3e5; /* Pale green background color */
+  font-family: 'Bebas Neue', sans-serif;
+  color: #333;
+}
+
+.shopTitle {
+  margin-top: 100px;
+  text-align: center;
+  font-size: 2rem;
+  font-weight: bold;
+  color: #333;
+}
+
+.products {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 30px; /* Increased gap to space out the products */
+  place-items: center;
+}
+
+
+.product {
+  border-radius: 15px;
+  width: 100%;
+  max-width: 300px;
+  height: 350px;
+  margin: 20px 20px 80px; /* Increased margin-bottom to space products vertically */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  transition: transform 0.3s ease-in-out;
+  background: #fff;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+
+.product img {
+  width: 100%;
+  max-height: 100%;
+  border-radius: 15px 15px 0 0;
+  object-fit: cover;
+}
+
+.product .description {
+  text-align: center;
+  padding: 15px;
+  color: #555;
+}
+
+.product:hover {
+  transform: scale(1.05);
+  cursor: pointer;
+}
+
+.addToCartBttn {
+  background-color: #fff;
+  border: 2px solid #333;
+  min-width: 100px;
+  padding: 5px 10px;
+  border-radius: 15px;
+  transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
+  color: #333;
+}
+
+.addToCartBttn:hover {
+  background-color: #333;
+  color: #fff;
+}
+.player-wrapper {
+  position: relative;
+  width: 100%;
+  height: 0;
+  padding-top: 56.25%; /* 16:9 aspect ratio */
+}
+
+.react-player {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+
+.content {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1;
+  text-align: center;
+  color: white;
+  /* Add any additional styles for the content */
+}
