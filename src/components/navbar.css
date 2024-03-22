@@ -1,31 +1,46 @@
 .navbar {
-  display: flex;
   align-items: center;
+  display: flex;
   justify-content: space-between;
-  padding: 20px 25px; /* Increased padding thickness */
+  margin: 0 auto;
+  padding: 10px 20px; /* Adjusted padding to make it smaller */
+  transition: padding 0.2s ease-in-out;
+  width: 100%;
   background-color: #b2d8ee;
-  font-family: Arial, sans-serif; /* Change the font family */
-}
-
-
-.left-links a {
-  margin-right: 20px;
-  color: white;
-  text-decoration: none;
 }
 
 .logo-image {
-  width: 150px;
+  width: 120px; /* Adjusted width to make the logo smaller */
   height: auto;
+  margin-left: 10px; /* Adjusted margin to make it smaller */
+}
+
+.links {
+  background: linear-gradient(90deg, #000, #000);
+  background-position: 50% 100%;
+  background-repeat: no-repeat;
+  background-size: 0 2px;
+  color: #000;
+  font-size: 18px; /* Adjusted font size to make it bigger */
+  font-weight: 700;
+  padding-bottom: 3px;
+  text-decoration: none;
+  text-transform: uppercase;
+  transition: all 0.2s ease-in-out;
+  display: flex;
+  padding: 15px 5px 5px; /* Adjusted padding around the text */
 }
 
 .links a {
   text-decoration: none;
   color: white;
-  margin-left: 20px;
+  margin-left: 10px; /* Adjusted margin to make it smaller */
+  font-size: 18px; /* Adjusted font size to make it bigger */
+  font-family: 'Bebas Neue', sans-serif;
+  transition: color 0.2s ease-in-out;
+  padding: 5px; /* Adjusted padding around the text */
 }
 
-.links a:last-child {
-  margin-right: 20px;
+.links a:hover {
+  color: #3498db;
 }
-

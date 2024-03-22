@@ -1,15 +1,16 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
-// Define the schema for the ImageDetails model
-const imageDetailsSchema = new mongoose.Schema({
-  imageUrl: String,
-  description: String,
-  age: String,
-  color: String,
-  gender: String,
-});
+const ImageDetailsSchema = new mongoose.Schema(
+  {
+    image: String,
+    description: String,
+    age: Number,
+    color: String,
+    gender: String
+  },
+  {
+    collection: "ImageDetails" // Collection name in the database
+  }
+);
 
-// Export the schema
-module.exports = imageDetailsSchema;
-
-
+mongoose.model("ImageDetails", ImageDetailsSchema);

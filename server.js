@@ -4,8 +4,11 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const multer = require("multer");
+const path = require("path");
+const net = require('net');
+const { exec } = require('child_process');
 
-const imageDetailsSchema = require('./imageDetails'); // Import the schema correctly
 app.use(express.json({ limit: '50mb' }));
 app.use(cors());
 
@@ -15,16 +18,19 @@ const mongoUrl = "mongodb+srv://kkelly:CaringCloset@cluster0.i1puxtq.mongodb.net
 mongoose
   .connect(mongoUrl, {
     useNewUrlParser: true,
+    useUnifiedTopology: true,
   })
   .then(() => {
     console.log("Connected to database");
+    startServer(); // Start the server after successfully connecting to the database
   })
   .catch((e) => console.log(e));
 
 require('./userDetails');
+require('./imageDetails');
 
 const User = mongoose.model('UserInfo');
-const ImageDetails = mongoose.model('ImageDetails', imageDetailsSchema); // Use the schema here
+const Images = mongoose.model("ImageDetails");
 
 app.post("/register", async (req, res) => {
   console.log('Received registration request body:', req.body);
@@ -54,7 +60,7 @@ app.post("/register", async (req, res) => {
   }
 });
 
-// Route to handle user login
+// Route handler for user login
 app.post("/login-user", async (req, res) => {
   const { email, password } = req.body;
 
@@ -72,7 +78,7 @@ app.post("/login-user", async (req, res) => {
   }
 });
 
-// Route to get user data based on token
+// Route handler to get user data based on token
 app.post("/userData", async (req, res) => {
   const { token } = req.body;
 
@@ -92,47 +98,116 @@ app.post("/userData", async (req, res) => {
   }
 });
 
-// Route handler for image upload
-app.post("/upload-image", async (req, res) => {
-  try {
-    const { base64, description, age, color, gender } = req.body;
+// Route to handle image upload
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, path.join(__dirname, "src", "images")); // Specify the correct path to your images folder
+  },
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now();
+    cb(null, uniqueSuffix + file.originalname);
+  },
+});
 
-    // Create a new ImageDetails document with the provided data
-    const newImageDetails = await ImageDetails.create({
-      imageUrl: base64,
-      description,
-      age,
-      color,
-      gender
+const upload = multer({ storage: storage });
+app.post("/upload-image", upload.single("image"), async (req, res) => {
+  console.log(req.body); // Log the request body to verify the form data
+  console.log(req.file); // Log the uploaded file details
+
+  const imageName = req.file.filename;
+  const { description, age, color, gender } = req.body;
+
+  try {
+    await Images.create({ image: imageName, description, age, color, gender });
+    res.json({ status: "ok", message: "Upload successful", additionalData });
+
+
+  } catch (error) {
+    console.error("Error uploading image:", error);
+    res.status(500).json({ status: "error", error: "Failed to upload image" });
+  }
+});
+
+
+app.get("/get-image", async (req, res) => {
+  try {
+    Images.find({}).then((data) => {
+      res.send({ status: "ok", data: data });
     });
-
-    // Respond with the newly created image document
-    res.json({ Status: "ok", data: newImageDetails });
   } catch (error) {
-    // If an error occurs, respond with an error message
-    console.error('Image upload error:', error);
-    res.status(500).json({ Status: "error", message: "Failed to upload image" });
+    res.json({ status: error });
   }
 });
 
-// Route to fetch image details
-app.get("/image-details", async (req, res) => {
+
+// Define your product schema
+const productSchema = new mongoose.Schema({
+  description: String,
+  age: Number,
+  color: String,
+  gender: String,
+  image: String,
+});
+
+const Product = mongoose.model('Product', productSchema);
+
+app.get("/product/:productId", async (req, res) => {
   try {
-    // Query MongoDB using Mongoose to retrieve image details
-    const imageDetails = await ImageDetails.find(); // Example query, adjust as needed
-
-    // Send back the retrieved image details as the response
-    res.json(imageDetails);
+    const productId = req.params.productId;
+    const product = await Product.findById(productId);
+    if (!product) {
+      return res.status(404).json({ error: "Product not found" });
+    }
+    res.json({ status: "ok", data: product });
   } catch (error) {
-    // Handle errors, if any
-    console.error('Error fetching image details:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    console.error("Error fetching product:", error);
+    res.status(500).json({ error: "Internal server error" });
   }
 });
 
+async function isPortInUse(port) {
+  return new Promise(resolve => {
+    const tester = net.createServer()
+      .once('error', () => resolve(true))
+      .once('listening', () => {
+        tester.once('close', () => resolve(false)).close();
+      })
+      .listen(port);
+  });
+}
 
-// Start the server
-const PORT = 5542;
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
+async function killProcessOnPort(port) {
+  return new Promise((resolve, reject) => {
+    exec(`netstat -ano | findstr :${port}`, (error, stdout) => {
+      if (error) {
+        reject(error);
+        return;
+      }
+      const pidMatch = stdout.match(/\b(\d+)\r?\n?$/);
+      if (pidMatch) {
+        const pid = parseInt(pidMatch[1]);
+        exec(`taskkill /PID ${pid} /F`, killError => {
+          if (killError) {
+            reject(killError);
+          } else {
+            resolve();
+          }
+        });
+      } else {
+        resolve(); // No process found using the port
+      }
+    });
+  });
+}
+
+async function startServer() {
+  const port = 5542;
+  const isPortAvailable = await isPortInUse(port);
+  if (isPortAvailable) {
+    await killProcessOnPort(port);
+  }
+
+  app.listen(port, () => {
+    console.log(`Server is running on port ${port}`);
+  });
+}
